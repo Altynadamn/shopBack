@@ -1,0 +1,10 @@
+Django==5.2.2
+django-filter==25.1
+djangorestframework==3.16.0
+requests==2.32.3
+dotenv==0.9.9
+psycopg2-binary>=2.9
+rest-framework-simplejwt==0.0.2
+djangorestframework-simplejwt
+django-cors-headers==4.7.0
+pillow==11.2.1

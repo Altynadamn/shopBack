@@ -1,0 +1,18 @@
+# docker-compose.yml
+
+version: '3.9'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8022:8022"
+    volumes:
+      - .:/code
+    command: >
+      sh -c "
+        python manage.py runserver 0.0.0.0:8022
+      "
+    env_file:
+      - .env
+
