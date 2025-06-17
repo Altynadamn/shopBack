@@ -10,7 +10,7 @@ router.register(r'categories', CategoryViewSet)
 
 urlpatterns = [
     path('', views.home_view, name='home'),
-    path('product/<int:pk>/', views.product_detail, name='product_detail'),
+    path('product/<int:id>/', views.product_detail_api, name='product-detail-api'),
     path('cart/', views.cart_view, name='cart'),
     path('cart/add/', views.add_to_cart, name='cart-add'),
     path('cart/update/<int:product_id>/', views.cart_item_update, name='cart-item-update'),

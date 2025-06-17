@@ -9,6 +9,11 @@ from django.shortcuts import render, redirect
 from django_filters import filters
 from .models import Product, Cart
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Product
+from .serializers import ProductSerializer
+
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
@@ -92,9 +97,14 @@ def home_view(request):
     return render(request, 'home.html', {'products': products, 'categories': categories})
 
 
-def product_detail(request, pk):
-    product = get_object_or_404(Product, id=pk)
-    return render(request, 'product_detail.html', {'product': product})
+@api_view(['GET'])
+def product_detail_api(request, id):
+    product = get_object_or_404(Product, pk=id)
+    serializer = ProductSerializer(product)
+    return Response(serializer.data)
+# def product_detail(request, pk):
+#     product = get_object_or_404(Product, id=pk)
+#     return render(request, 'product_detail.html', {'product': product})
 
 
 def category_filter(request, cat_id):
