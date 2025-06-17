@@ -17,17 +17,12 @@ ENV/
 *.log
 *.pot
 *.pyc
-*.sqlite3
-db.sqlite3
 local_settings.py
 media/
 staticfiles/
 static_root/
 *.mo
 
-# Django migrations
-**/migrations/
-!*/migrations/__init__.py
 
 # dotenv
 .env
@@ -44,7 +39,6 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# JetBrains IDEs
 .idea/
 
 # Coverage reports
