@@ -11,7 +11,6 @@ from .models import Product, Cart
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Product
 from .serializers import ProductSerializer
 
 
@@ -100,7 +99,7 @@ def home_view(request):
 @api_view(['GET'])
 def product_detail_api(request, id):
     product = get_object_or_404(Product, pk=id)
-    serializer = ProductSerializer(product)
+    serializer = ProductSerializer(product , context = {'request':request})
     return Response(serializer.data)
 # def product_detail(request, pk):
 #     product = get_object_or_404(Product, id=pk)
