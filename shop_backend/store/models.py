@@ -5,6 +5,7 @@ from django.db import models
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=200, unique= True , null= True , blank= True)
 
     def __str__(self):
         return self.name
@@ -19,6 +20,15 @@ COLOR_CHOICES = [
     ("yellow", "Yellow"),
 ]
 
+class Size(models.Model):
+    name = models.CharField(max_length=10, unique=True)      
+    slug = models.SlugField(max_length=10, unique=True, null= True, blank=True)      
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
 
 class Product(models.Model):
     title = models.CharField(max_length=100)
@@ -28,7 +38,7 @@ class Product(models.Model):
     main_image = models.ImageField(upload_to='products/main/', null=True, blank=True)
     available = models.BooleanField(default=True)
     color = models.CharField(max_length=20, choices=COLOR_CHOICES)
-
+    sizes = models.ManyToManyField(Size, related_name='products', blank=True)
     def __str__(self):
         return self.title
 
@@ -39,7 +49,6 @@ class ProductImage(models.Model):
         on_delete=models.CASCADE
     )
     image = models.ImageField(upload_to='products/gallery/')
-    # можно добавить порядок показа
     order = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
