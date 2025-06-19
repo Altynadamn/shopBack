@@ -5,11 +5,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
-urlpatterns = [
+urlpatterns = [ 
     path('admin/', admin.site.urls),
     path('store/', include('store.urls')),
     path('auth/', include('users.urls')),
-
 ] 
 
 if settings.DEBUG:

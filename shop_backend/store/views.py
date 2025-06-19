@@ -18,8 +18,11 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, filters.CharFilter]
-    filter_set_fields = ['category', 'in_stock', 'color', 'price']
+    filter_set_fields = ['category', 'in_stock', 'color', 'price', 'sizes_slug',]
     search_fields = ['title', 'description']
+    
+    def get_serializer_context(self):
+        return {'request': self.request}
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
