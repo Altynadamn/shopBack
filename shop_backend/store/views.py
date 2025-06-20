@@ -28,10 +28,12 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
 
 
-def search_view(request):
+@api_view(['GET'])
+def product_search_api(request):
     q = request.GET.get('q', '')
     products = Product.objects.filter(title__icontains=q)
-    return render(request, 'home.html', {'products': products, 'categories': Category.objects.all()})
+    serializer = ProductSerializer(products, many=True)
+    return Response(serializer.data)
 
 
 class CartView(generics.RetrieveAPIView):
@@ -102,9 +104,6 @@ def product_detail_api(request, id):
     product = get_object_or_404(Product, pk=id)
     serializer = ProductSerializer(product)
     return Response(serializer.data)
-# def product_detail(request, pk):
-#     product = get_object_or_404(Product, id=pk)
-#     return render(request, 'product_detail.html', {'product': product})
 
 
 def category_filter(request, cat_id):
