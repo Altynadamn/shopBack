@@ -2,20 +2,26 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from . import views
-from .views import ProductViewSet, CategoryViewSet, CartView, AddToCartView, UpdateCartItemView, cart_html_view
+from .views import (
+    ProductViewSet, CategoryViewSet,
+    CartView, AddToCartView, UpdateCartItemView,
+    search_view, home_view, product_detail_api,
+    category_filter_api, cart_api, auth_api
+)
 
 router = DefaultRouter()
-router.register(r'products', ProductViewSet)
-router.register(r'categories', CategoryViewSet)
+router.register(r'products', ProductViewSet, basename='product')
+router.register(r'categories', CategoryViewSet, basename='category')
 
 urlpatterns = [
-    path('', views.home_view, name='home'),
-    path('product/<int:id>/', views.product_detail_api, name='product-detail-api'),
-    path('cart/', views.cart_view, name='cart'),
-    path('cart/add/', views.add_to_cart, name='cart-add'),
-    path('cart/update/<int:product_id>/', views.cart_item_update, name='cart-item-update'),
-    path('auth/', views.auth_view, name='auth'),
-    path('category/<int:cat_id>/', views.category_filter, name='category'),
-    path('search/', views.search_view, name='search'),
+    path('' , include(router.urls)),
+    path('cart/', CartView.as_view(), name='cart'),
+    path('cart/add/', AddToCartView.as_view(), name='cart-add'),
+    path('cart/update/<int:product_id>/', UpdateCartItemView.as_view(), name='cart-item-update'),
 
+    path('search/', views.search_view, name='search'),
+    path('home/',               home_view,          name='home'),
+    path('category/<int:cat_id>/', views.category_filter_api, name='category'),
+    path('cart-json/',          cart_api,           name='cart-json'),
+    path('auth/', views.auth_api, name='auth'),
 ]

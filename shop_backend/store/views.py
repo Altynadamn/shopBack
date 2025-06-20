@@ -2,25 +2,32 @@ from .serializers import ProductSerializer, CategorySerializer, CartSerializer, 
 from django.shortcuts import render, redirect, get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
-from django.views.decorators.csrf import csrf_exempt
 from .models import Product, Category, CartItem
 from rest_framework import viewsets, generics
 from django.shortcuts import render, redirect
-from django_filters import filters
 from .models import Product, Cart
 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from .models import Product
-from .serializers import ProductSerializer
+from rest_framework.filters import SearchFilter 
+from rest_framework.permissions import AllowAny
 
+from django.contrib.auth import authenticate
+from .serializers import ProductSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+
+# from django.views.decorators.csrf import csrf_exempt
+# from django_filters import filters
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    filter_backends = [DjangoFilterBackend, filters.CharFilter]
-    filter_set_fields = ['category', 'in_stock', 'color', 'price']
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filter_set_fields = ['category', 'in_stock', 'color', 'price', 'sizes_slug',]
     search_fields = ['title', 'description']
+    
+    def get_serializer_context(self):
+        return {'request': self.request}
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -29,12 +36,20 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['GET'])
+<<<<<<< HEAD
 def product_search_api(request):
     q = request.GET.get('q', '')
     products = Product.objects.filter(title__icontains=q)
     serializer = ProductSerializer(products, many=True)
     return Response(serializer.data)
 
+=======
+def search_view(request):
+    q = request.query_params.get('q', '')
+    products = Product.objects.filter(title__icontains=q)
+    serialized = ProductSerializer(products, many=True, context={'request': request})
+    return Response(serialized.data)
+>>>>>>> 72c72c6951240c9b74b21f2e24be5e60eaac8429
 
 class CartView(generics.RetrieveAPIView):
     serializer_class = CartSerializer
@@ -93,46 +108,49 @@ def cart_html_view(request):
     return render(request, 'cart.html', {'cart': cart})
 
 
+@api_view(['GET'])
 def home_view(request):
-    products = Product.objects.all()
+    products   = Product.objects.all()
     categories = Category.objects.all()
-    return render(request, 'home.html', {'products': products, 'categories': categories})
+
+    products_data   = ProductSerializer(products, many=True, context={'request': request}).data
+    categories_data = CategorySerializer(categories, many=True, context={'request': request}).data
+
+    return Response({
+        'products':   products_data,
+        'categories': categories_data,
+    })
 
 
 @api_view(['GET'])
 def product_detail_api(request, id):
     product = get_object_or_404(Product, pk=id)
-    serializer = ProductSerializer(product)
+    serializer = ProductSerializer(product , context = {'request':request})
     return Response(serializer.data)
 
-
-def category_filter(request, cat_id):
-    products = Product.objects.filter(category_id=cat_id)
+@api_view(['GET'])
+def category_filter_api(request, cat_id):
+    products   = Product.objects.filter(category_id=cat_id)
     categories = Category.objects.all()
-    return render(request, 'home.html', {'products': products, 'categories': categories})
+    return Response({
+        'products':   ProductSerializer(products,   many=True, context={'request': request}).data,
+        'categories': CategorySerializer(categories, many=True, context={'request': request}).data,
+    })
 
 
-def search_view(request):
-    q = request.GET.get('q', '')
-    products = Product.objects.filter(title__icontains=q)
-    categories = Category.objects.all()
-    return render(request, 'home.html', {'products': products, 'categories': categories})
-
-
-def cart_view(request):
+@api_view(['GET'])
+def cart_api(request):
     cart = request.session.get('cart', {})
     products = Product.objects.filter(id__in=cart.keys())
-
-    cart_items = []
-    for product in products:
-        quantity = cart[str(product.id)]
-        cart_items.append({
-            'product': product,
-            'quantity': quantity,
-            'total': quantity * product.price,
-        })
-
-    return render(request, 'cart.html', {'cart_items': cart_items})
+    cart_items = [
+        {
+            'product': ProductSerializer(product, context={'request': request}).data,
+            'quantity': cart[str(product.id)],
+            'total':    cart[str(product.id)] * product.price
+        }
+        for product in products
+    ]
+    return Response({'cart_items': cart_items})
 
 
 def add_to_cart(request):
@@ -161,20 +179,20 @@ def cart_item_update(request, product_id):
     return redirect('cart')
 
 
-def auth_view(request):
-    if request.method == 'POST':
-        from rest_framework_simplejwt.tokens import RefreshToken
-        from django.contrib.auth import authenticate
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def auth_api(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    user = authenticate(request, username=username, password=password)
+    if not user:
+        return Response({'detail': 'Invalid credentials'}, status=401)
 
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user:
-            refresh = RefreshToken.for_user(user)
-            request.session['token'] = str(refresh.access_token)
-            return redirect('home')
-        else:
-            return render(request, 'auth.html', {'error': 'Invalid credentials'})
-    return render(request, 'auth.html')
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        'access': str(refresh.access_token),
+        'refresh': str(refresh),
+    })
+
 
 
