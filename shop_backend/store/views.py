@@ -36,20 +36,17 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['GET'])
-<<<<<<< HEAD
 def product_search_api(request):
     q = request.GET.get('q', '')
     products = Product.objects.filter(title__icontains=q)
     serializer = ProductSerializer(products, many=True)
     return Response(serializer.data)
 
-=======
 def search_view(request):
     q = request.query_params.get('q', '')
     products = Product.objects.filter(title__icontains=q)
     serialized = ProductSerializer(products, many=True, context={'request': request})
     return Response(serialized.data)
->>>>>>> 72c72c6951240c9b74b21f2e24be5e60eaac8429
 
 class CartView(generics.RetrieveAPIView):
     serializer_class = CartSerializer

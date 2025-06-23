@@ -20,6 +20,7 @@ COLOR_CHOICES = [
     ("yellow", "Yellow"),
 ]
 
+
 class Size(models.Model):
     name = models.CharField(max_length=10, unique=True)      
     slug = models.SlugField(max_length=10, unique=True, null= True, blank=True)      
@@ -30,6 +31,7 @@ class Size(models.Model):
     def __str__(self):
         return self.name
 
+
 class Product(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
@@ -39,13 +41,15 @@ class Product(models.Model):
     available = models.BooleanField(default=True)
     color = models.CharField(max_length=20, choices=COLOR_CHOICES)
     sizes = models.ManyToManyField(Size, related_name='products', blank=True)
+
     def __str__(self):
         return self.title
+
 
 class ProductImage(models.Model):
     product = models.ForeignKey(
         Product,
-        related_name='images',    # чтобы получить product.images.all()
+        related_name='images',
         on_delete=models.CASCADE
     )
     image = models.ImageField(upload_to='products/gallery/')
@@ -53,6 +57,7 @@ class ProductImage(models.Model):
 
     class Meta:
         ordering = ['order']
+
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cart')
