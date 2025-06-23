@@ -18,7 +18,6 @@ ENV/
 *.pot
 *.pyc
 local_settings.py
-media/
 staticfiles/
 static_root/
 *.mo
