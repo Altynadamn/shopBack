@@ -1,5 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from .views import filter_options_api
 
 from . import views
 from .views import (
@@ -24,4 +25,6 @@ urlpatterns = [
     path('category/<int:cat_id>/', views.category_filter_api, name='category'),
     path('cart-json/',          cart_api,           name='cart-json'),
     path('auth/', views.auth_api, name='auth'),
+    path('api/filter-options/', filter_options_api, name='filter_options'),
+
 ]

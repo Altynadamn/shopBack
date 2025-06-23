@@ -6,7 +6,7 @@ from .models import Product, Category, CartItem
 from rest_framework import viewsets, generics
 from django.shortcuts import render, redirect
 from .models import Product, Cart
-
+from .filters import ProductFilter
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter 
@@ -16,18 +16,17 @@ from django.contrib.auth import authenticate
 from .serializers import ProductSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-# from django.views.decorators.csrf import csrf_exempt
-# from django_filters import filters
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
-    filter_set_fields = ['category', 'in_stock', 'color', 'price', 'sizes_slug',]
+    filterset_class = ProductFilter
     search_fields = ['title', 'description']
-    
+
     def get_serializer_context(self):
         return {'request': self.request}
+
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -42,11 +41,24 @@ def product_search_api(request):
     serializer = ProductSerializer(products, many=True)
     return Response(serializer.data)
 
+
 def search_view(request):
     q = request.query_params.get('q', '')
     products = Product.objects.filter(title__icontains=q)
     serialized = ProductSerializer(products, many=True, context={'request': request})
     return Response(serialized.data)
+
+
+@api_view(['GET'])
+def filter_options_api(request):
+    from .models import COLOR_CHOICES, Size, Category
+
+    return Response({
+        "colors": COLOR_CHOICES,
+        "sizes": [ {"slug": s.slug, "name": s.name} for s in Size.objects.all() ],
+        "categories": [ {"id": c.id, "name": c.name} for c in Category.objects.all() ]
+    })
+
 
 class CartView(generics.RetrieveAPIView):
     serializer_class = CartSerializer
