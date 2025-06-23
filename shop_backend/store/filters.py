@@ -7,8 +7,8 @@ class ProductFilter(django_filters.FilterSet):
     price_max = django_filters.NumberFilter(field_name="price", lookup_expr='lte')
     sizes = django_filters.ModelMultipleChoiceFilter(
         queryset=Size.objects.all(),
-        field_name="sizes",
-        to_field_name="slug"
+        field_name="sizes__slug",
+        to_field_name="slug",
     )
 
     class Meta:
