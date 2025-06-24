@@ -41,7 +41,7 @@ def product_search_api(request):
     serializer = ProductSerializer(products, many=True)
     return Response(serializer.data)
 
-
+@api_view(['GET'])
 def search_view(request):
     q = request.query_params.get('q', '')
     products = Product.objects.filter(title__icontains=q)
