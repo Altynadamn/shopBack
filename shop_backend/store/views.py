@@ -87,34 +87,34 @@ class UpdateCartItemView(generics.RetrieveUpdateDestroyAPIView):
         return CartItem.objects.filter(cart__user=self.request.user)
 
 
-def cart_html_view(request):
-    if not request.user.is_authenticated:
-        return redirect('/admin/login/?next=/cart/')
-
-    cart, _ = Cart.objects.get_or_create(user=request.user)
-
-    if request.method == 'POST':
-        if 'product_id' in request.POST:
-            from .models import CartItem, Product
-            product = Product.objects.get(id=request.POST['product_id'])
-            quantity = int(request.POST.get('quantity', 1))
-            CartItem.objects.create(cart=cart, product=product, quantity=quantity)
-
-        elif 'quantity' in request.POST:
-            item_id = request.path.split('/')[-2]
-            try:
-                item = cart.items.get(id=item_id)
-                if 'delete' in request.GET:
-                    item.delete()
-                else:
-                    item.quantity = int(request.POST['quantity'])
-                    item.save()
-            except:
-                pass
-
-        return redirect('/cart/')
-
-    return render(request, 'cart.html', {'cart': cart})
+# def cart_html_view(request):
+#     if not request.user.is_authenticated:
+#         return redirect('/admin/login/?next=/cart/')
+#
+#     cart, _ = Cart.objects.get_or_create(user=request.user)
+#
+#     if request.method == 'POST':
+#         if 'product_id' in request.POST:
+#             from .models import CartItem, Product
+#             product = Product.objects.get(id=request.POST['product_id'])
+#             quantity = int(request.POST.get('quantity', 1))
+#             CartItem.objects.create(cart=cart, product=product, quantity=quantity)
+#
+#         elif 'quantity' in request.POST:
+#             item_id = request.path.split('/')[-2]
+#             try:
+#                 item = cart.items.get(id=item_id)
+#                 if 'delete' in request.GET:
+#                     item.delete()
+#                 else:
+#                     item.quantity = int(request.POST['quantity'])
+#                     item.save()
+#             except:
+#                 pass
+#
+#         return redirect('/cart/')
+#
+#     return render(request, 'cart.html', {'cart': cart})
 
 
 @api_view(['GET'])
