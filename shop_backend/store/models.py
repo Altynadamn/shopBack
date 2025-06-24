@@ -23,7 +23,7 @@ COLOR_CHOICES = [
 
 class Size(models.Model):
     name = models.CharField(max_length=10, unique=True)      
-    slug = models.SlugField(max_length=10, unique=True, null= True, blank=True)      
+    slug = models.SlugField(max_length=10, unique=True, null=True, blank=True)
 
     class Meta:
         ordering = ['name']

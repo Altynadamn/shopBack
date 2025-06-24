@@ -15,7 +15,7 @@ router.register(r'products', ProductViewSet, basename='product')
 router.register(r'categories', CategoryViewSet, basename='category')
 
 urlpatterns = [
-    path('' , include(router.urls)),
+    path('', include(router.urls)),
     path('cart/', CartView.as_view(), name='cart'),
     path('cart/add/', AddToCartView.as_view(), name='cart-add'),
     path('cart/update/<int:product_id>/', UpdateCartItemView.as_view(), name='cart-item-update'),

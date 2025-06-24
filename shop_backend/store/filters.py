@@ -8,7 +8,7 @@ class ProductFilter(django_filters.FilterSet):
     sizes = django_filters.ModelMultipleChoiceFilter(
         queryset=Size.objects.all(),
         field_name="sizes__slug",
-        to_field_name="slug"
+        to_field_name="slug",
     )
 
     class Meta:
