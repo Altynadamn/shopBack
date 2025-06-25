@@ -7,7 +7,7 @@ from .views import (
     ProductViewSet, CategoryViewSet,
     CartView, AddToCartView, UpdateCartItemView,
     search_view, home_view, product_detail_api,
-    category_filter_api, cart_api, auth_api
+    category_filter_api, auth_api
 )
 
 router = DefaultRouter()
@@ -23,7 +23,6 @@ urlpatterns = [
     path('search/', views.search_view, name='search'),
     path('home/',               home_view,          name='home'),
     path('category/<int:cat_id>/', views.category_filter_api, name='category'),
-    path('cart-json/',          cart_api,           name='cart-json'),
+    # path('cart-json/',          cart_api,           name='cart-json'),
     path('filter-options/', filter_options_api, name='filter_options'),
-
 ]

@@ -16,7 +16,6 @@ from django.contrib.auth import authenticate
 from .serializers import ProductSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
-
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -26,8 +25,6 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         return {'request': self.request}
-
-
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -75,7 +72,20 @@ class AddToCartView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         cart, _ = Cart.objects.get_or_create(user=self.request.user)
-        serializer.save(cart=cart)
+        product = serializer.validated_data['product']
+        quantity = serializer.validated_data.get('quantity', 1)
+        
+        # Проверяем, есть ли уже такой товар в корзине
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=cart,
+            product=product,
+            defaults={'quantity': quantity}
+        )
+        
+        if not created:
+            # Если товар уже есть - увеличиваем количество
+            cart_item.quantity += quantity
+            cart_item.save()
 
 
 class UpdateCartItemView(generics.RetrieveUpdateDestroyAPIView):
@@ -147,19 +157,19 @@ def category_filter_api(request, cat_id):
     })
 
 
-@api_view(['GET'])
-def cart_api(request):
-    cart = request.session.get('cart', {})
-    products = Product.objects.filter(id__in=cart.keys())
-    cart_items = [
-        {
-            'product': ProductSerializer(product, context={'request': request}).data,
-            'quantity': cart[str(product.id)],
-            'total':    cart[str(product.id)] * product.price
-        }
-        for product in products
-    ]
-    return Response({'cart_items': cart_items})
+# @api_view(['GET'])
+# def cart_api(request):
+#     cart = request.session.get('cart', {})
+#     products = Product.objects.filter(id__in=cart.keys())
+#     cart_items = [
+#         {
+#             'product': ProductSerializer(product, context={'request': request}).data,
+#             'quantity': cart[str(product.id)],
+#             'total':    cart[str(product.id)] * product.price
+#         }
+#         for product in products
+#     ]
+#     return Response({'cart_items': cart_items})
 
 
 def add_to_cart(request):
