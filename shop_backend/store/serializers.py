@@ -50,8 +50,8 @@ class CartSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cart
-        fields = ['id', 'user', 'created_at', 'items']
-        read_only_fields = ['user', 'created_at']
+        fields = ['id', 'user', 'date_added', 'items']
+        read_only_fields = ['user', 'date_added']
 
 
 # class FavoriteItemSerializer(serializers.ModelSerializer):
