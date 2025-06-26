@@ -93,7 +93,12 @@ class UpdateCartItemView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CartItemSerializer
     permission_classes = [IsAuthenticated]
 
+    # вот это добавляем:
+    lookup_field       = 'product_id'      # имя поля в модели CartItem
+    lookup_url_kwarg   = 'product_id'      # имя параметра в path()
+
     def get_queryset(self):
+        # чтобы пользователь мог менять только свои CartItem
         return CartItem.objects.filter(cart__user=self.request.user)
 
 
